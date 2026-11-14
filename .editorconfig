@@ -1,0 +1,18 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_size = 4
+
+[*.{axaml,csproj,props,slnx,xml,manifest}]
+indent_size = 2
+
+[*.{yml,yaml,json,js,html,css,svg}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
