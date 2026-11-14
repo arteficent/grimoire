@@ -1,0 +1,16 @@
+# graphify scans source code only: build output, generated site and binary assets add noise to the graph.
+bin/
+obj/
+publish/
+artifacts/
+TestResults/
+.vs/
+.vscode/
+.git/
+.github/
+docs/
+graphify-out/
+*.md
+*.png
+*.ico
+*.svg
