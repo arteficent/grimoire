@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>grimoire: a visual knowledge base for computer and software engineering</title>
+  <meta name="description" content="grimoire is a free, open-source desktop app with 140+ animated, step-by-step lessons on concurrency, memory, CPUs, GPUs, networking, data structures, algorithms, system design and machine learning.">
+  <meta name="theme-color" content="#0B1020">
+  <meta property="og:title" content="grimoire">
+  <meta property="og:description" content="Animated, step-by-step lessons for the hard parts of computer and software engineering.">
+  <meta property="og:image" content="assets/grimoire-512.png">
+  <link rel="icon" type="image/svg+xml" href="assets/grimoire.svg">
+  <link rel="alternate icon" href="assets/grimoire.ico">
+  <link rel="apple-touch-icon" href="assets/grimoire.png">
+  <style>
+    :root {
+      --bg: #0B1020; --panel: #111933; --panel-2: #16213A; --line: #24304F;
+      --text: #E6EAF5; --muted: #93A0BF; --accent: #8B5CF6; --accent-2: #FBBF24; --good: #34D399;
+      --radius: 16px;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: #A78BFA; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, kbd, pre { font-family: "Cascadia Code", Consolas, ui-monospace, monospace; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    header.top { position: sticky; top: 0; z-index: 10; background: rgba(11, 16, 32, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    header.top .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
+    header.top img { width: 34px; height: 34px; }
+    header.top .brand { font-weight: 700; font-size: 20px; color: var(--text); }
+    header.top nav { margin-left: auto; display: flex; gap: 22px; font-size: 15px; }
+    header.top nav a { color: var(--muted); }
+    header.top nav a:hover { color: var(--text); text-decoration: none; }
+
+    .hero { padding: 72px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+    .hero h1 { font-size: clamp(34px, 4.4vw, 54px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -0.02em; }
+    .hero h1 span { background: linear-gradient(90deg, #A78BFA, #FBBF24); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p.lead { font-size: 18px; color: var(--muted); margin: 0 0 26px; }
+    .stats { display: flex; gap: 28px; margin: 0 0 30px; flex-wrap: wrap; }
+    .stats div { min-width: 90px; }
+    .stats b { display: block; font-size: 30px; color: var(--text); }
+    .stats span { color: var(--muted); font-size: 14px; }
+    .buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; font-weight: 600; border: 1px solid var(--line); color: var(--text); background: var(--panel); }
+    .btn:hover { text-decoration: none; border-color: #3B4A72; }
+    .btn.primary { background: linear-gradient(135deg, #6D28D9, #4F46E5); border-color: transparent; }
+    .hero figure { margin: 0; }
+    .hero figure img, .shots img { width: 100%; border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(109, 40, 217, 0.25); display: block; }
+
+    section { padding: 56px 0; }
+    section h2 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.01em; }
+    section p.sub { color: var(--muted); margin: 0 0 32px; max-width: 760px; }
+
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .feature .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; color: #0B1020; margin-bottom: 14px; }
+    .feature h3 { margin: 0 0 6px; font-size: 18px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .shots figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
+    .shots figure { margin: 0; }
+
+    .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 260px; padding: 13px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font-size: 16px; }
+    .toolbar input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .toolbar .count { color: var(--muted); font-size: 14px; }
+    .tracks { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+    .track { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+    .track > button { all: unset; cursor: pointer; display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; padding: 20px; align-items: start; }
+    .track > button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .mono { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; color: #0B1020; font-size: 17px; }
+    .track h3 { margin: 2px 0 4px; font-size: 18px; }
+    .track .tagline { color: var(--muted); font-size: 14px; margin: 0; }
+    .track .meta { font-size: 13px; font-weight: 700; margin-top: 8px; }
+    .chev { color: var(--muted); transition: transform 0.2s; margin-top: 4px; }
+    .track.open .chev { transform: rotate(90deg); }
+    .lessons { display: none; border-top: 1px solid var(--line); padding: 10px 20px 18px; background: var(--panel-2); }
+    .track.open .lessons { display: block; }
+    .lessons h4 { margin: 14px 0 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .lesson { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+    .lesson:last-child { border-bottom: 0; }
+    .lesson .t { font-weight: 600; font-size: 15px; }
+    .lesson .s { color: var(--muted); font-size: 13.5px; }
+    .chip { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: #1E2A4A; color: var(--muted); margin-left: 6px; vertical-align: 2px; }
+    .chip.run { background: #2A1E3D; color: #C4B5FD; }
+    mark { background: rgba(251, 191, 36, 0.3); color: inherit; border-radius: 3px; }
+
+    .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+    .card h3 { margin-top: 0; }
+    pre { background: #070B17; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font-size: 14px; color: #D5DEF5; }
+    kbd { background: #1E2A4A; border: 1px solid #34477A; border-bottom-width: 2px; border-radius: 6px; padding: 1px 7px; font-size: 13px; }
+    table.keys { border-collapse: collapse; width: 100%; font-size: 15px; }
+    table.keys td { padding: 6px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
+    table.keys td:first-child { width: 170px; color: var(--text); }
+
+    .stack { display: flex; flex-wrap: wrap; gap: 10px; }
+    .stack span { background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+
+    footer { border-top: 1px solid var(--line); padding: 30px 0 50px; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    footer img { width: 26px; height: 26px; }
+    footer .right { margin-left: auto; display: flex; gap: 18px; }
+
+    @media (max-width: 900px) {
+      .hero, .shots, .steps { grid-template-columns: 1fr; }
+      .features { grid-template-columns: 1fr 1fr; }
+      header.top nav { display: none; }
+    }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <img src="assets/grimoire.svg" alt="">
+      <span class="brand">grimoire</span>
+      <nav aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#tracks">Lessons</a>
+        <a href="#download">Download</a>
+        <a href="#build">Build</a>
+        <a href="https://github.com/arteficent/grimoire">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <h1>See how computers <span>really work</span>, one animated step at a time.</h1>
+        <p class="lead">grimoire is a free, open-source desktop knowledge base for the hard parts of computer and software engineering: deadlocks, page tables, warps, TCP, B-trees, Raft, transformers and much more. Every lesson is a short animation you step through at your own pace, with the hardware detail and real code one click away.</p>
+        <div class="stats" aria-live="polite">
+          <div><b id="stat-tracks">13</b><span>tracks</span></div>
+          <div><b id="stat-lessons">140+</b><span>lessons</span></div>
+          <div><b id="stat-steps">800+</b><span>animated steps</span></div>
+        </div>
+        <div class="buttons">
+          <a class="btn primary" href="https://github.com/arteficent/grimoire/releases/latest">Download for Windows</a>
+          <a class="btn" href="#tracks">Browse all lessons</a>
+          <a class="btn" href="https://github.com/arteficent/grimoire">Source on GitHub</a>
+        </div>
+      </div>
+      <figure>
+        <img src="assets/screenshot-attention.png" alt="grimoire lesson showing attention weights from the word 'it' to every other word in a sentence" loading="eager">
+      </figure>
+    </div>
+
+    <section id="how">
+      <div class="wrap">
+        <h2>How a lesson works</h2>
+        <p class="sub">Each lesson is a short story of steps (most have 4 to 8). The picture animates as you move forward: threads grab locks, packets cross the wire, keys move around a hash ring, values flow through a neural network.</p>
+        <div class="features">
+          <div class="feature"><div class="ico" style="background:#7AA2FF">1</div><h3>Step through it</h3><p>Press <kbd>→</kbd> to advance. Shapes slide, flash and fade so you can see exactly what changed, and why.</p></div>
+          <div class="feature"><div class="ico" style="background:#C084FC">2</div><h3>Go deeper when you want</h3><p>A short narrative explains each step. Open "Go deeper" for the hardware and internals: cache lines, TLBs, HBM, PCIe lanes.</p></div>
+          <div class="feature"><div class="ico" style="background:#34D399">3</div><h3>Read the real code</h3><p>"Show code" highlights the exact lines each step is about, in C#, SQL, CUDA, assembly or pseudo-code.</p></div>
+          <div class="feature"><div class="ico" style="background:#FBBF24">4</div><h3>Run real demos</h3><p>The 18 concurrency lessons ship with runnable scenarios: watch an actual deadlock happen and a watchdog detect it.</p></div>
+          <div class="feature"><div class="ico" style="background:#F472B6">5</div><h3>Computed, not drawn</h3><p>Gradient descent, k-means, convolutions, attention weights, Raft votes and grid-world values are calculated live by the real algorithm.</p></div>
+          <div class="feature"><div class="ico" style="background:#38BDF8">6</div><h3>Find anything</h3><p>Search every lesson by keyword (deadlock, TLB, warp, QUIC, saga, attention...) and jump straight in.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="shots">
+          <figure><img src="assets/screenshot-home.png" alt="grimoire home screen with topic tracks" loading="lazy"><figcaption>Pick a track, or search all lessons.</figcaption></figure>
+          <figure><img src="assets/screenshot-sharding.png" alt="Consistent hashing lesson: a hash ring where adding node N4 moves only 2 of 12 keys" loading="lazy"><figcaption>System design: a new node joins the hash ring and only 2 of 12 keys move.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="tracks">
+      <div class="wrap">
+        <h2>Every lesson</h2>
+        <p class="sub">From bits and instruction sets up to distributed systems and frontier AI models. Click a track to see its lessons, or search across all of them.</p>
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Search lessons: deadlock, page table, QUIC, attention, saga..." aria-label="Search lessons">
+          <span class="count" id="result-count"></span>
+        </div>
+        <div class="tracks" id="track-list">
+          <noscript><p>Enable JavaScript to browse the lesson catalog, or see the README on GitHub.</p></noscript>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="wrap steps">
+        <div class="card">
+          <h3>Download and run (Windows x64)</h3>
+          <ol>
+            <li>Open the <a href="https://github.com/arteficent/grimoire/releases/latest">latest release</a>.</li>
+            <li>Download <code>grimoire-vX.Y.Z-win-x64.zip</code> (and the <code>.sha256</code> file if you want to verify it).</li>
+            <li>Unzip anywhere and run <code>grimoire.exe</code>. No installer and no .NET install needed: it is a self-contained single file.</li>
+          </ol>
+          <p style="color:var(--muted)">Windows SmartScreen may warn about an unsigned app; choose "More info" then "Run anyway".</p>
+        </div>
+        <div class="card">
+          <h3>Keyboard</h3>
+          <table class="keys">
+            <tr><td><kbd>→</kbd> / <kbd>PgDn</kbd></td><td>next step</td></tr>
+            <tr><td><kbd>←</kbd> / <kbd>PgUp</kbd></td><td>previous step</td></tr>
+            <tr><td><kbd>Space</kbd></td><td>auto-play / pause</td></tr>
+            <tr><td><kbd>Home</kbd></td><td>restart the lesson</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>back to the track or home</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="build">
+      <div class="wrap steps">
+        <div class="card">
+          <h3>Build from source</h3>
+          <p style="color:var(--muted)">Requires the <a href="https://dotnet.microsoft.com/download">.NET 10 SDK</a>. Runs on Windows, macOS and Linux.</p>
+<pre>git clone https://github.com/arteficent/grimoire.git
+cd grimoire
+dotnet run --project grimoire
+
+dotnet test grimoire.slnx      # curriculum consistency tests</pre>
+        </div>
+        <div class="card">
+          <h3>Built with</h3>
+          <div class="stack">
+            <span>.NET 10</span><span>C# 14</span><span>Avalonia UI 11.3</span><span>CommunityToolkit.Mvvm</span><span>custom animated scene renderer</span><span>xUnit</span><span>GitHub Actions</span>
+          </div>
+          <p style="color:var(--muted);margin-top:18px">Lessons are plain C#: a <code>StoryBuilder</code> describes each step as a change to a scene of boxes, circles, tables and arrows, and the renderer animates the difference. Contributions of new lessons are welcome.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <img src="assets/grimoire.svg" alt="">
+      <span>grimoire is open source under the <a href="https://github.com/arteficent/grimoire/blob/main/LICENSE">MIT License</a>.</span>
+      <div class="right">
+        <a href="https://github.com/arteficent/grimoire">GitHub</a>
+        <a href="https://github.com/arteficent/grimoire/releases">Releases</a>
+        <a href="https://github.com/arteficent/grimoire/issues">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="catalog.js"></script>
+  <script>
+    (function () {
+      const catalog = window.GRIMOIRE_CATALOG;
+      const list = document.getElementById('track-list');
+      const search = document.getElementById('search');
+      const count = document.getElementById('result-count');
+      if (!catalog) { list.textContent = 'Lesson catalog not found.'; return; }
+
+      document.getElementById('stat-tracks').textContent = catalog.tracks.length;
+      document.getElementById('stat-lessons').textContent = catalog.lessonCount;
+      document.getElementById('stat-steps').textContent = catalog.stepCount;
+
+      function el(tag, cls, text) {
+        const node = document.createElement(tag);
+        if (cls) node.className = cls;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function highlight(node, text, terms) {
+        if (!terms.length) { node.textContent = text; return; }
+        const pattern = new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'ig');
+        text.split(pattern).forEach((part, i) => node.appendChild(i % 2 ? el('mark', null, part) : document.createTextNode(part)));
+      }
+
+      function render() {
+        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        const matches = l => terms.every(t => (l.title + ' ' + l.summary + ' ' + l.section).toLowerCase().includes(t));
+        list.replaceChildren();
+        let shown = 0;
+
+        catalog.tracks.forEach((track, index) => {
+          const lessons = track.lessons.filter(matches);
+          if (terms.length && lessons.length === 0) return;
+          shown += lessons.length;
+
+          const card = el('article', 'track' + (terms.length ? ' open' : ''));
+          const head = el('button');
+          head.setAttribute('aria-expanded', terms.length ? 'true' : 'false');
+          const mono = el('div', 'mono', track.monogram);
+          mono.style.background = track.accent;
+          const text = el('div');
+          text.appendChild(el('h3', null, track.title));
+          text.appendChild(el('p', 'tagline', track.tagline));
+          const meta = el('div', 'meta', terms.length ? lessons.length + ' of ' + track.lessons.length + ' lessons' : track.lessons.length + ' lessons');
+          meta.style.color = track.accent;
+          text.appendChild(meta);
+          head.append(mono, text, el('span', 'chev', '›'));
+          head.addEventListener('click', () => {
+            const open = card.classList.toggle('open');
+            head.setAttribute('aria-expanded', open ? 'true' : 'false');
+          });
+
+          const body = el('div', 'lessons');
+          let section = null;
+          lessons.forEach(lesson => {
+            if (lesson.section !== section) {
+              section = lesson.section;
+              body.appendChild(el('h4', null, section));
+            }
+            const row = el('div', 'lesson');
+            const title = el('div', 't');
+            highlight(title, lesson.title, terms);
+            title.appendChild(el('span', 'chip', lesson.steps + ' steps'));
+            if (lesson.runnable) title.appendChild(el('span', 'chip run', 'runnable demo'));
+            const summary = el('div', 's');
+            highlight(summary, lesson.summary, terms);
+            row.append(title, summary);
+            body.appendChild(row);
+          });
+
+          card.append(head, body);
+          list.appendChild(card);
+        });
+
+        count.textContent = terms.length ? shown + ' matching lessons' : catalog.lessonCount + ' lessons in ' + catalog.tracks.length + ' tracks';
+        if (terms.length && shown === 0) list.appendChild(el('p', 'sub', 'No lessons match "' + search.value + '".'));
+      }
+
+      search.addEventListener('input', render);
+      render();
+    })();
+  </script>
+</body>
+</html>
