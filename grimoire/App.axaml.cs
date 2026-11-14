@@ -1,0 +1,24 @@
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using grimoire.Rendering;
+using grimoire.ViewModels;
+using grimoire.Views;
+
+namespace grimoire;
+
+public partial class App : Application
+{
+    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            Theme.Load();
+            desktop.MainWindow = new MainWindow { DataContext = new MainViewModel() };
+        }
+
+        base.OnFrameworkInitializationCompleted();
+    }
+}

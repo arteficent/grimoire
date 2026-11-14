@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>grimoire: a visual knowledge base for computer and software engineering</title>
+  <meta name="description" content="grimoire is a free, open-source desktop app with 140+ animated, step-by-step lessons on concurrency, memory, CPUs, GPUs, networking, data structures, algorithms, system design and machine learning.">
+  <meta name="theme-color" content="#FBF8F1">
+  <meta property="og:title" content="grimoire">
+  <meta property="og:description" content="Animated, step-by-step lessons for the hard parts of computer and software engineering.">
+  <meta property="og:image" content="assets/grimoire-512.png">
+  <link rel="icon" type="image/svg+xml" href="assets/grimoire.svg">
+  <link rel="alternate icon" href="assets/grimoire.ico">
+  <link rel="apple-touch-icon" href="assets/grimoire.png">
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem('grimoire-theme')
+      || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  </script>
+  <style>
+    @font-face { font-family: Kalam; src: url(assets/fonts/Kalam-Regular.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Kalam; src: url(assets/fonts/Kalam-Bold.ttf) format("truetype"); font-weight: 700; font-display: swap; }
+    @font-face { font-family: "Cinzel Decorative"; src: url(assets/fonts/CinzelDecorative-Bold.ttf) format("truetype"); font-weight: 700; font-display: swap; }
+    @font-face { font-family: "Courier Prime"; src: url(assets/fonts/CourierPrime-Regular.ttf) format("truetype"); font-display: swap; }
+
+    /* White paper, dark pens */
+    :root {
+      --bg: #FBF8F1; --panel: #FFFDF8; --panel-2: #F6F1E6; --line: #CFC5B1; --rule: #ECE4D4;
+      --text: #1F2330; --muted: #5A5E6B; --accent: #1E4FA8; --on-accent: #FBF8F1;
+      --blue: #1E4FA8; --green: #1B7347; --amber: #A35B00; --red: #B42318; --violet: #6A3DB8; --gold: #A8741A; --doodle: #7A7060;
+      --marker: rgba(255, 214, 90, 0.55); --mix: black; --mix-amount: 38%;
+      --radius: 6px 18px 8px 16px;
+      font-family: Kalam, "Segoe Print", "Comic Sans MS", cursive;
+      color-scheme: light;
+    }
+    /* Gray paper, light pens */
+    [data-theme="dark"] {
+      --bg: #393B40; --panel: #42454B; --panel-2: #3E4146; --line: #64686F; --rule: #44474D;
+      --text: #F4F0E6; --muted: #C6C1B5; --accent: #9CC2FF; --on-accent: #2B2D31;
+      --blue: #9CC2FF; --green: #8EE3B0; --amber: #FFD27A; --red: #FF9A8F; --violet: #CDB4FF; --gold: #FFD27A; --doodle: #CFC9BC;
+      --marker: rgba(255, 210, 122, 0.3); --mix: white; --mix-amount: 30%;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--text); line-height: 1.6; font-size: 17px;
+      background-color: var(--bg);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.38 0 0 0 0 0.25 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      transition: background-color 0.4s, color 0.4s;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline wavy; }
+    code, kbd, pre { font-family: "Courier Prime", "Courier New", ui-monospace, monospace; }
+    h1, h2, .brand { font-family: "Cinzel Decorative", Georgia, serif; font-weight: 700; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .ink { stroke: var(--doodle); }
+    .ink-gold { stroke: var(--gold); }
+
+    header.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1.5px solid var(--line); }
+    header.top .wrap { display: flex; align-items: center; gap: 14px; height: 66px; }
+    header.top img { width: 40px; height: 40px; }
+    header.top .brand { font-size: 22px; color: var(--text); }
+    header.top nav { margin-left: auto; display: flex; gap: 22px; font-size: 17px; }
+    header.top nav a { color: var(--muted); }
+    header.top nav a:hover { color: var(--text); }
+    .theme-toggle { font: inherit; font-size: 16px; color: var(--text); background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px 6px 16px 8px; padding: 4px 14px; cursor: pointer; }
+    .theme-toggle:hover { border-color: var(--accent); }
+
+    .hero { padding: 64px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; position: relative; }
+    .hero h1 { font-size: clamp(26px, 3vw, 40px); line-height: 1.2; margin: 0 0 18px; }
+    .hero h1 span { background: linear-gradient(transparent 62%, var(--marker) 62%); }
+    .hero p.lead { font-size: 19px; color: var(--muted); margin: 0 0 26px; }
+    .stats { display: flex; gap: 28px; margin: 0 0 30px; flex-wrap: wrap; }
+    .stats div { min-width: 90px; }
+    .stats b { display: block; font-size: 32px; color: var(--text); }
+    .stats span { color: var(--muted); font-size: 15px; }
+    .buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 16px 8px 18px 6px; font-weight: 700; border: 1.5px solid var(--line); color: var(--text); background: var(--panel); transition: transform 0.15s; }
+    .btn:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px) rotate(-0.5deg); }
+    .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+    .hero figure { margin: 0; position: relative; }
+    .hero figure img, .shots img { width: 100%; border-radius: 6px 14px 8px 12px; border: 1.5px solid var(--line); box-shadow: 4px 6px 0 color-mix(in srgb, var(--line) 60%, transparent); display: block; }
+    [data-theme="dark"] .only-light, :root:not([data-theme="dark"]) .only-dark { display: none !important; }
+    .doodle { position: absolute; pointer-events: none; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .doodle path, .doodle circle, .doodle polyline, .doodle ellipse { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.4s ease-out forwards; }
+    .doodle .d2 { animation-delay: 0.5s; } .doodle .d3 { animation-delay: 1s; }
+    .spin { transform-box: fill-box; transform-origin: center; animation: spin 90s linear infinite; }
+    .twinkle { transform-box: fill-box; transform-origin: center; animation: twinkle 3s ease-in-out infinite; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes twinkle { 50% { transform: scale(0.75); opacity: 0.6; } }
+    @media (prefers-reduced-motion: reduce) { .doodle *, .spin, .twinkle { animation: none !important; stroke-dashoffset: 0 !important; } }
+
+    section { padding: 56px 0; }
+    section h2 { font-size: 32px; margin: 0 0 8px; }
+    section p.sub { color: var(--muted); margin: 0 0 32px; max-width: 760px; }
+    .flourish { display: block; width: 260px; height: 30px; margin: 4px 0 18px; }
+
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature, .card, .track { background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--radius); }
+    .feature { padding: 22px; }
+    .feature .ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: "Cinzel Decorative", serif; font-weight: 700; color: var(--c); border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); margin-bottom: 14px; }
+    .feature h3 { margin: 0 0 6px; font-size: 20px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 16px; }
+
+    .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .shots figcaption { color: var(--muted); font-size: 15px; margin-top: 8px; }
+    .shots figure { margin: 0; }
+
+    .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 260px; padding: 12px 16px; border-radius: 6px 16px 8px 14px; border: 1.5px solid var(--line); background: var(--panel); color: var(--text); font: inherit; }
+    .toolbar input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .toolbar .count { color: var(--muted); font-size: 15px; }
+    .tracks { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+    .track { overflow: hidden; display: flex; flex-direction: column; }
+    .track > button { all: unset; cursor: pointer; display: grid; grid-template-columns: 54px 1fr auto; gap: 14px; padding: 20px; align-items: start; }
+    .track > button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .ink-c { --ink: color-mix(in oklab, var(--c) calc(100% - var(--mix-amount)), var(--mix)); }
+    .mono { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: "Cinzel Decorative", serif; font-weight: 700; font-size: 17px; color: var(--ink); border: 2px solid var(--ink); background: color-mix(in srgb, var(--ink) 14%, transparent); }
+    .track h3 { margin: 2px 0 4px; font-size: 20px; }
+    .track .tagline { color: var(--muted); font-size: 15px; margin: 0; }
+    .track .meta { font-size: 15px; font-weight: 700; margin-top: 8px; color: var(--ink); }
+    .chev { color: var(--muted); transition: transform 0.2s; margin-top: 4px; font-size: 22px; }
+    .track.open .chev { transform: rotate(90deg); }
+    .lessons { display: none; border-top: 1.5px dashed var(--line); padding: 10px 20px 18px; background: var(--panel-2); }
+    .track.open .lessons { display: block; }
+    .lessons h4 { margin: 14px 0 6px; font-family: "Cinzel Decorative", serif; font-size: 13px; letter-spacing: 0.06em; color: var(--muted); }
+    .lesson { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+    .lesson:last-child { border-bottom: 0; }
+    .lesson .t { font-weight: 700; font-size: 16px; }
+    .lesson .s { color: var(--muted); font-size: 15px; }
+    .chip { display: inline-block; font-size: 13px; padding: 0 8px; border-radius: 10px 4px 10px 4px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: 2px; }
+    .chip.run { color: var(--violet); border-color: var(--violet); }
+    mark { background: var(--marker); color: inherit; border-radius: 2px 6px 3px 5px; }
+
+    .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card { padding: 24px; }
+    .card h3 { margin-top: 0; font-size: 21px; }
+    pre { background: var(--panel-2); border: 1.5px dashed var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 15px; color: var(--text); }
+    kbd { background: var(--panel-2); border: 1.5px solid var(--line); border-bottom-width: 3px; border-radius: 6px; padding: 0 7px; font-size: 14px; }
+    table.keys { border-collapse: collapse; width: 100%; font-size: 16px; }
+    table.keys td { padding: 6px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
+    table.keys td:first-child { width: 170px; color: var(--text); }
+
+    .stack { display: flex; flex-wrap: wrap; gap: 10px; }
+    .stack span { background: var(--panel); border: 1.5px solid var(--line); padding: 6px 14px; border-radius: 14px 6px 14px 6px; font-size: 15px; }
+
+    footer { border-top: 1.5px solid var(--line); padding: 30px 0 50px; color: var(--muted); font-size: 15px; }
+    footer .wrap { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    footer img { width: 30px; height: 30px; }
+    footer .right { margin-left: auto; display: flex; gap: 18px; }
+
+    @media (max-width: 900px) {
+      .hero, .shots, .steps { grid-template-columns: 1fr; }
+      .features { grid-template-columns: 1fr 1fr; }
+      header.top nav, .hero .doodle { display: none; }
+    }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <img src="assets/grimoire.svg" alt="">
+      <span class="brand">grimoire</span>
+      <nav aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#tracks">Lessons</a>
+        <a href="#download">Download</a>
+        <a href="#build">Build</a>
+        <a href="https://github.com/arteficent/grimoire">GitHub</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch paper">Gray paper</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <h1>See how computers <span>really work</span>, one animated step at a time.</h1>
+        <p class="lead">grimoire is a free, open-source desktop knowledge base for the hard parts of computer and software engineering: deadlocks, page tables, warps, TCP, B-trees, Raft, transformers and much more. Every lesson is a short animation you step through at your own pace, with the hardware detail and real code one click away.</p>
+        <div class="stats" aria-live="polite">
+          <div><b id="stat-tracks">13</b><span>tracks</span></div>
+          <div><b id="stat-lessons">140+</b><span>lessons</span></div>
+          <div><b id="stat-steps">800+</b><span>animated steps</span></div>
+        </div>
+        <div class="buttons">
+          <a class="btn primary" href="https://github.com/arteficent/grimoire/releases/latest">Download for Windows</a>
+          <a class="btn" href="#tracks">Browse all lessons</a>
+          <a class="btn" href="https://github.com/arteficent/grimoire">Source on GitHub</a>
+        </div>
+      </div>
+      <figure>
+        <svg class="doodle" style="left:-70px;top:-60px;width:110px;height:110px" viewBox="0 0 100 100" aria-hidden="true">
+          <path class="ink-gold" pathLength="1" d="M78,22 A38,38 0 1,0 80,80 A30,30 0 1,1 78,22 Z"/>
+          <path class="ink-gold d2 twinkle" pathLength="1" d="M88,58 Q88,66 96,66 Q88,66 88,74 Q88,66 80,66 Q88,66 88,58 Z"/>
+        </svg>
+        <svg class="doodle" style="right:-40px;top:-70px;width:150px;height:150px" viewBox="0 0 100 100" aria-hidden="true">
+          <g class="spin">
+            <circle class="ink" pathLength="1" cx="50" cy="50" r="46"/>
+            <circle class="ink d2" pathLength="1" cx="50" cy="50" r="34"/>
+            <polyline class="ink d2" pathLength="1" points="50,16 79.4,67 20.6,67 50,16"/>
+            <polyline class="ink d3" pathLength="1" points="50,84 20.6,33 79.4,33 50,84"/>
+            <circle class="ink-gold d3" pathLength="1" cx="50" cy="50" r="12"/>
+          </g>
+        </svg>
+        <svg class="doodle" style="right:-30px;bottom:-50px;width:90px;height:60px" viewBox="0 0 100 60" aria-hidden="true">
+          <polyline class="ink" pathLength="1" points="6,50 26,34 44,40 60,16 84,10 94,34"/>
+          <path class="ink-gold d2 twinkle" pathLength="1" d="M60,8 Q60,16 68,16 Q60,16 60,24 Q60,16 52,16 Q60,16 60,8 Z"/>
+        </svg>
+        <img class="only-light" src="assets/screenshot-attention-light.png" alt="grimoire lesson on white paper: attention weights for the word 'it'" loading="eager">
+        <img class="only-dark" src="assets/screenshot-attention-dark.png" alt="grimoire lesson on gray paper: attention weights for the word 'it'" loading="eager">
+      </figure>
+    </div>
+
+    <section id="how">
+      <div class="wrap">
+        <h2>How a lesson works</h2>
+        <svg class="flourish" viewBox="0 0 200 30" aria-hidden="true" fill="none" stroke-width="1.5" stroke-linecap="round"><path class="ink" d="M14,15 H88 M112,15 H186 M100,7 L110,15 L100,23 L90,15 Z M14,15 a5,5 0 1,1 4,-5 M186,15 a5,5 0 1,0 -4,-5"/></svg>
+        <p class="sub">Each lesson is a short story of steps (most have 4 to 8). The picture animates as you move forward: threads grab locks, packets cross the wire, keys move around a hash ring, values flow through a neural network.</p>
+        <div class="features">
+          <div class="feature"><div class="ico" style="--c:var(--blue)">I</div><h3>Step through it</h3><p>Press <kbd>→</kbd> to advance. Shapes slide, flash and fade so you can see exactly what changed, and why.</p></div>
+          <div class="feature"><div class="ico" style="--c:var(--violet)">II</div><h3>Go deeper when you want</h3><p>A short narrative explains each step. Open "Go deeper" for the hardware and internals: cache lines, TLBs, HBM, PCIe lanes.</p></div>
+          <div class="feature"><div class="ico" style="--c:var(--green)">III</div><h3>Read the real code</h3><p>"Show code" highlights the exact lines each step is about, in C#, SQL, CUDA, assembly or pseudo-code.</p></div>
+          <div class="feature"><div class="ico" style="--c:var(--amber)">IV</div><h3>Run real demos</h3><p>The 18 concurrency lessons ship with runnable scenarios: watch an actual deadlock happen and a watchdog detect it.</p></div>
+          <div class="feature"><div class="ico" style="--c:var(--red)">V</div><h3>Computed, not drawn</h3><p>Gradient descent, k-means, convolutions, attention weights, Raft votes and grid-world values are calculated live by the real algorithm.</p></div>
+          <div class="feature"><div class="ico" style="--c:var(--gold)">VI</div><h3>Find anything</h3><p>Search every lesson by keyword (deadlock, TLB, warp, QUIC, saga, attention...) and jump straight in.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="shots">
+          <figure><img class="only-light" src="assets/screenshot-home-light.png" alt="grimoire home screen on white paper" loading="lazy"><img class="only-dark" src="assets/screenshot-home-dark.png" alt="grimoire home screen on gray paper" loading="lazy"><figcaption>Pick a track, or search all lessons. White paper or gray paper, your choice.</figcaption></figure>
+          <figure><img class="only-light" src="assets/screenshot-sharding-light.png" alt="Consistent hashing lesson on white paper: adding node N4 moves only 2 of 12 keys" loading="lazy"><img class="only-dark" src="assets/screenshot-sharding-dark.png" alt="Consistent hashing lesson on gray paper: adding node N4 moves only 2 of 12 keys" loading="lazy"><figcaption>System design: a new node joins the hash ring and only 2 of 12 keys move.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="tracks">
+      <div class="wrap">
+        <h2>Every lesson</h2>
+        <p class="sub">From bits and instruction sets up to distributed systems and frontier AI models. Click a track to see its lessons, or search across all of them.</p>
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Search lessons: deadlock, page table, QUIC, attention, saga..." aria-label="Search lessons">
+          <span class="count" id="result-count"></span>
+        </div>
+        <div class="tracks" id="track-list">
+          <noscript><p>Enable JavaScript to browse the lesson catalog, or see the README on GitHub.</p></noscript>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="wrap steps">
+        <div class="card">
+          <h3>Download and run (Windows x64)</h3>
+          <ol>
+            <li>Open the <a href="https://github.com/arteficent/grimoire/releases/latest">latest release</a>.</li>
+            <li>Download <code>grimoire-vX.Y.Z-win-x64.zip</code> (and the <code>.sha256</code> file if you want to verify it).</li>
+            <li>Unzip anywhere and run <code>grimoire.exe</code>. No installer and no .NET install needed: it is a self-contained single file.</li>
+          </ol>
+          <p style="color:var(--muted)">Windows SmartScreen may warn about an unsigned app; choose "More info" then "Run anyway".</p>
+        </div>
+        <div class="card">
+          <h3>Keyboard</h3>
+          <table class="keys">
+            <tr><td><kbd>→</kbd> / <kbd>PgDn</kbd></td><td>next step</td></tr>
+            <tr><td><kbd>←</kbd> / <kbd>PgUp</kbd></td><td>previous step</td></tr>
+            <tr><td><kbd>Space</kbd></td><td>auto-play / pause</td></tr>
+            <tr><td><kbd>Home</kbd></td><td>restart the lesson</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>back to the track or home</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="build">
+      <div class="wrap steps">
+        <div class="card">
+          <h3>Build from source</h3>
+          <p style="color:var(--muted)">Requires the <a href="https://dotnet.microsoft.com/download">.NET 10 SDK</a>. Runs on Windows, macOS and Linux.</p>
+<pre>git clone https://github.com/arteficent/grimoire.git
+cd grimoire
+dotnet run --project grimoire
+
+dotnet test grimoire.slnx      # curriculum consistency tests</pre>
+        </div>
+        <div class="card">
+          <h3>Built with</h3>
+          <div class="stack">
+            <span>.NET 10</span><span>C# 14</span><span>Avalonia UI 11.3</span><span>CommunityToolkit.Mvvm</span><span>custom animated scene renderer</span><span>xUnit</span><span>GitHub Actions</span>
+          </div>
+          <p style="color:var(--muted);margin-top:18px">Lessons are plain C#: a <code>StoryBuilder</code> describes each step as a change to a scene of boxes, circles, tables and arrows, and the renderer animates the difference. Contributions of new lessons are welcome.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <img src="assets/grimoire.svg" alt="">
+      <span>grimoire is open source under the <a href="https://github.com/arteficent/grimoire/blob/main/LICENSE">MIT License</a>.</span>
+      <div class="right">
+        <a href="https://github.com/arteficent/grimoire">GitHub</a>
+        <a href="https://github.com/arteficent/grimoire/releases">Releases</a>
+        <a href="https://github.com/arteficent/grimoire/issues">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="catalog.js"></script>
+  <script>
+    (function () {
+      const catalog = window.GRIMOIRE_CATALOG;
+      const list = document.getElementById('track-list');
+      const search = document.getElementById('search');
+      const count = document.getElementById('result-count');
+      if (!catalog) { list.textContent = 'Lesson catalog not found.'; return; }
+
+      document.getElementById('stat-tracks').textContent = catalog.tracks.length;
+      document.getElementById('stat-lessons').textContent = catalog.lessonCount;
+      document.getElementById('stat-steps').textContent = catalog.stepCount;
+
+      function el(tag, cls, text) {
+        const node = document.createElement(tag);
+        if (cls) node.className = cls;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function highlight(node, text, terms) {
+        if (!terms.length) { node.textContent = text; return; }
+        const pattern = new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'ig');
+        text.split(pattern).forEach((part, i) => node.appendChild(i % 2 ? el('mark', null, part) : document.createTextNode(part)));
+      }
+
+      function render() {
+        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        const matches = l => terms.every(t => (l.title + ' ' + l.summary + ' ' + l.section).toLowerCase().includes(t));
+        list.replaceChildren();
+        let shown = 0;
+
+        catalog.tracks.forEach((track, index) => {
+          const lessons = track.lessons.filter(matches);
+          if (terms.length && lessons.length === 0) return;
+          shown += lessons.length;
+
+          const card = el('article', 'track' + (terms.length ? ' open' : ''));
+          const head = el('button');
+          head.setAttribute('aria-expanded', terms.length ? 'true' : 'false');
+          const mono = el('div', 'mono', track.monogram);
+          card.classList.add('ink-c');
+          card.style.setProperty('--c', track.accent);
+          const text = el('div');
+          text.appendChild(el('h3', null, track.title));
+          text.appendChild(el('p', 'tagline', track.tagline));
+          const meta = el('div', 'meta', terms.length ? lessons.length + ' of ' + track.lessons.length + ' lessons' : track.lessons.length + ' lessons');
+          text.appendChild(meta);
+          head.append(mono, text, el('span', 'chev', '›'));
+          head.addEventListener('click', () => {
+            const open = card.classList.toggle('open');
+            head.setAttribute('aria-expanded', open ? 'true' : 'false');
+          });
+
+          const body = el('div', 'lessons');
+          let section = null;
+          lessons.forEach(lesson => {
+            if (lesson.section !== section) {
+              section = lesson.section;
+              body.appendChild(el('h4', null, section));
+            }
+            const row = el('div', 'lesson');
+            const title = el('div', 't');
+            highlight(title, lesson.title, terms);
+            title.appendChild(el('span', 'chip', lesson.steps + ' steps'));
+            if (lesson.runnable) title.appendChild(el('span', 'chip run', 'runnable demo'));
+            const summary = el('div', 's');
+            highlight(summary, lesson.summary, terms);
+            row.append(title, summary);
+            body.appendChild(row);
+          });
+
+          card.append(head, body);
+          list.appendChild(card);
+        });
+
+        count.textContent = terms.length ? shown + ' matching lessons' : catalog.lessonCount + ' lessons in ' + catalog.tracks.length + ' tracks';
+        if (terms.length && shown === 0) list.appendChild(el('p', 'sub', 'No lessons match "' + search.value + '".'));
+      }
+
+      search.addEventListener('input', render);
+      render();
+    })();
+
+    (function () {
+      const toggle = document.getElementById('theme-toggle');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      function apply(theme) {
+        document.documentElement.dataset.theme = theme;
+        toggle.textContent = theme === 'dark' ? 'White paper' : 'Gray paper';
+        meta.content = theme === 'dark' ? '#393B40' : '#FBF8F1';
+      }
+      apply(document.documentElement.dataset.theme);
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('grimoire-theme', next);
+        apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>

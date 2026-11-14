@@ -1,0 +1,313 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:grimoire.ViewModels"
+        xmlns:r="using:grimoire.Rendering"
+        x:Class="grimoire.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="grimoire"
+        Icon="/Assets/grimoire.ico"
+        Width="1480" Height="940" MinWidth="1100" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        FontSize="15"
+        FontFamily="fonts:Grimoire#Kalam"
+        Background="{DynamicResource AppBackground}">
+
+  <Window.Resources>
+    <DataTemplate x:Key="LessonCardTemplate" x:DataType="vm:LessonCard">
+      <Button Classes="tile" Width="360" MinHeight="138"
+              Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenLessonCommand}"
+              CommandParameter="{Binding}">
+        <Grid ColumnDefinitions="Auto,*">
+          <Border Classes="seal" Width="48" Height="48" VerticalAlignment="Top" BorderBrush="{Binding Track.Accent}" Background="{Binding Track.AccentWash}">
+            <TextBlock Text="{Binding Id}" FontSize="12" Foreground="{Binding Track.Accent}" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="4">
+            <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="Bold" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimary}" />
+            <TextBlock Text="{Binding Summary}" FontSize="14" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource TextMuted}" />
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
+              <Border Classes="chip">
+                <TextBlock Text="{Binding StepsLabel}" FontSize="12.5" Foreground="{DynamicResource TextMuted}" />
+              </Border>
+              <Border Classes="chip" IsVisible="{Binding HasLive}" Background="{DynamicResource ChipLiveFill}">
+                <TextBlock Text="runnable demo" FontSize="12.5" Foreground="{DynamicResource InkViolet}" />
+              </Border>
+              <Border Classes="chip" IsVisible="{Binding IsDone}" Background="{DynamicResource ChipDoneFill}">
+                <TextBlock Text="completed" FontSize="12.5" Foreground="{DynamicResource InkGreen}" />
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+      </Button>
+    </DataTemplate>
+  </Window.Resources>
+
+  <Panel>
+
+    <!-- ============================== HOME ============================== -->
+    <ScrollViewer Classes="page" IsVisible="{Binding IsHome}">
+      <StackPanel Margin="56,36,56,40" MaxWidth="1180" HorizontalAlignment="Center">
+        <Grid>
+          <r:Doodle Kind="MagicCircle" Width="250" Height="250" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,60,0,0"
+                    Stroke="{DynamicResource DoodleInk}" Thickness="1.2" Opacity="0.75" />
+          <r:Doodle Kind="Moon" Width="64" Height="64" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,320,0"
+                    Stroke="{DynamicResource DoodleGold}" Thickness="1.6" />
+          <r:Doodle Kind="Stars" Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,250,280,0"
+                    Stroke="{DynamicResource DoodleInk}" />
+          <r:Doodle Kind="Planet" Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,180,0"
+                    Stroke="{DynamicResource DoodleGold}" />
+          <StackPanel>
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <Image Source="/Assets/grimoire.png" Width="58" Height="58" VerticalAlignment="Center" />
+                <TextBlock Classes="title" Text="Grimoire" FontSize="44" VerticalAlignment="Center" />
+                <Border Classes="chip" VerticalAlignment="Center" Margin="0,10,0,0">
+                  <TextBlock Text="{Binding VersionLabel}" FontSize="13" Foreground="{DynamicResource TextMuted}" />
+                </Border>
+              </StackPanel>
+              <Button Grid.Column="1" Classes="transport" VerticalAlignment="Top" Command="{Binding ToggleThemeCommand}" Content="{Binding ThemeLabel}"
+                      ToolTip.Tip="Switch paper" AutomationProperties.Name="Switch paper" />
+            </Grid>
+            <TextBlock Margin="0,10,0,0" MaxWidth="600" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="18" LineHeight="28"
+                       Foreground="{DynamicResource TextMuted}"
+                       Text="A visual spellbook for the hard parts of computer and software engineering. Pick a topic, then step through short animated lessons at your own pace. Open 'Go deeper' only when you want the hardware detail." />
+            <TextBox Margin="0,24,0,8" Width="560" HorizontalAlignment="Left" FontSize="16" Padding="14,10"
+                     Watermark="{Binding SearchHint}" Text="{Binding SearchText}" />
+            <r:Doodle Kind="Flourish" Width="320" Height="40" HorizontalAlignment="Left" Margin="120,4,0,14"
+                      Stroke="{DynamicResource DoodleInk}" />
+          </StackPanel>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Tracks}" IsVisible="{Binding !HasSearch}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:TrackCard">
+              <Button Classes="tile" Width="364" Height="214"
+                      Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenTrackCommand}"
+                      CommandParameter="{Binding}">
+                <Grid RowDefinitions="Auto,Auto,*,Auto">
+                  <Border Classes="seal" Width="54" Height="54" HorizontalAlignment="Left" BorderBrush="{Binding Accent}" Background="{Binding AccentWash}">
+                    <TextBlock Text="{Binding Monogram}" FontSize="17" Foreground="{Binding Accent}" />
+                  </Border>
+                  <TextBlock Grid.Row="1" Margin="0,12,0,2" Text="{Binding Title}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" />
+                  <TextBlock Grid.Row="2" Text="{Binding Tagline}" FontSize="14.5" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}" />
+                  <TextBlock Grid.Row="3" Text="{Binding CountLabel}" FontSize="14" FontWeight="Bold" Foreground="{Binding Accent}" />
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl ItemsSource="{Binding SearchResults}" IsVisible="{Binding HasSearch}" ItemTemplate="{StaticResource LessonCardTemplate}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ============================== TRACK ============================== -->
+    <DockPanel Classes="page" IsVisible="{Binding IsTrack}">
+      <Grid DockPanel.Dock="Top">
+        <r:Doodle Kind="Constellation" Width="200" Height="90" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,24,180,0"
+                  Stroke="{DynamicResource DoodleInk}" />
+        <r:Doodle Kind="Moon" Width="58" Height="58" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,70,110,0"
+                  Stroke="{DynamicResource DoodleGold}" Thickness="1.5" />
+        <Border Padding="40,20,40,12">
+          <StackPanel Spacing="14" MaxWidth="1180" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="link" Content="&lt;  All topics" Command="{Binding GoHomeCommand}" HorizontalAlignment="Left" />
+              <Button Classes="link" Content="{Binding ThemeLabel}" Command="{Binding ToggleThemeCommand}" AutomationProperties.Name="Switch paper" />
+            </StackPanel>
+            <Grid ColumnDefinitions="Auto,*">
+              <Border Classes="seal" Width="64" Height="64" BorderBrush="{Binding CurrentTrack.Accent}" Background="{Binding CurrentTrack.AccentWash}">
+                <TextBlock Text="{Binding CurrentTrack.Monogram}" FontSize="20" Foreground="{Binding CurrentTrack.Accent}" />
+              </Border>
+              <StackPanel Grid.Column="1" Margin="18,0,0,0" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Classes="title" Text="{Binding CurrentTrack.Title}" FontSize="30" />
+                <TextBlock Text="{Binding CurrentTrack.Tagline}" FontSize="16" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+      <ScrollViewer>
+        <ItemsControl Margin="40,8,40,40" ItemsSource="{Binding CurrentTrack.Sections}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SectionGroup">
+              <StackPanel Margin="0,8,0,10">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="2,0,0,10">
+                  <r:Doodle Kind="Sparkle" Width="18" Height="18" Stroke="{DynamicResource DoodleGold}" VerticalAlignment="Center" />
+                  <TextBlock Classes="caption" Text="{Binding Name}" VerticalAlignment="Center" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Lessons}" ItemTemplate="{StaticResource LessonCardTemplate}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+
+    <!-- ============================== LESSON ============================== -->
+    <Grid Classes="page" IsVisible="{Binding IsLesson}" RowDefinitions="Auto,*,Auto" Margin="20,12,20,16">
+
+      <!-- Header -->
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,12">
+        <Button Classes="link" Content="{Binding CurrentTrack.Title, StringFormat='&lt;  {0}'}" Command="{Binding BackToTrackCommand}" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Margin="14,0" VerticalAlignment="Center" Spacing="0">
+          <TextBlock Classes="title" Text="{Binding CurrentLesson.Title}" FontSize="22" TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding LessonPosition}" FontSize="13.5" Foreground="{DynamicResource TextMuted}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <r:Doodle Kind="Stars" Width="40" Height="40" Stroke="{DynamicResource DoodleGold}" VerticalAlignment="Center" />
+          <Button Classes="transport" Content="{Binding ThemeLabel}" Command="{Binding ToggleThemeCommand}" AutomationProperties.Name="Switch paper" />
+          <ToggleButton Classes="transport" Content="Run the real code" IsVisible="{Binding HasLive}" IsChecked="{Binding IsLiveOpen}" />
+          <Button Classes="transport" Content="Legend">
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedRight">
+                <StackPanel Width="320" Spacing="8" Margin="4">
+                  <TextBlock Classes="caption" Text="COLOURS" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource InkBlue}" Text="Blue ink: active right now" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource InkGreen}" Text="Green ink: done, correct, or holding a lock" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource InkAmber}" Text="Amber ink: waiting, queued, or a warning" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource InkRed}" Text="Red ink: the problem (deadlock, miss, overload)" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource TextMuted}" Text="Dashed outline: freed, empty or no longer used" />
+                  <TextBlock Classes="caption" Text="THREADS" Margin="0,6,0,0" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource TextMuted}" Text="Solid green line = holds. Moving red dashes = waits for. Spinner = busy-waiting; padlock = asleep in the kernel." />
+                  <TextBlock Classes="caption" Text="CACHE LINE STATES" Margin="0,6,0,0" />
+                  <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource TextMuted}" Text="M modified, E exclusive, S shared, I invalid, R copy held in a register." />
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <!-- Body -->
+      <Grid Grid.Row="1" ColumnDefinitions="*,400">
+        <Border Classes="card" Padding="0" ClipToBounds="True">
+          <r:SceneCanvas Scene="{Binding CurrentScene}" Speed="{Binding AnimationSpeed}" Epoch="{Binding Epoch}" />
+        </Border>
+
+        <!-- Step explanation -->
+        <ScrollViewer Grid.Column="1" Margin="16,0,0,0" IsVisible="{Binding !IsLiveOpen}">
+          <StackPanel Spacing="12" Margin="0,4,8,4">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <r:Doodle Kind="Sparkle" Width="18" Height="18" Stroke="{DynamicResource DoodleGold}" VerticalAlignment="Center" />
+              <TextBlock Classes="caption" Text="{Binding StepLabel}" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Text="{Binding CurrentStep.Title}" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimary}" />
+            <TextBlock Text="{Binding CurrentStep.Narrative}" FontSize="17" LineHeight="27" TextWrapping="Wrap" Foreground="{DynamicResource TextBody}" />
+
+            <Expander Header="Go deeper: hardware and internals" IsVisible="{Binding HasDeeper}" IsExpanded="{Binding IsDeeperOpen}" Margin="0,6,0,0">
+              <TextBlock Text="{Binding CurrentStep.Hardware}" FontSize="15" LineHeight="24" TextWrapping="Wrap" Foreground="{DynamicResource TextDeeper}" />
+            </Expander>
+
+            <Expander Header="Show code" IsVisible="{Binding HasCode}" IsExpanded="{Binding IsCodeOpen}">
+              <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding CodeLines}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CodeLine">
+                      <Border Classes="codeLine" Classes.active="{Binding IsActive}">
+                        <Grid ColumnDefinitions="24,*">
+                          <TextBlock Classes="lineNo" Text="{Binding Number}" />
+                          <TextBlock Grid.Column="1" Text="{Binding Text}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </Expander>
+
+            <Border Classes="card" Background="{DynamicResource TakeawayFill}" BorderBrush="{DynamicResource InkGreen}" IsVisible="{Binding IsLastStep}">
+              <StackPanel Spacing="10">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <r:Doodle Kind="Sun" Width="22" Height="22" Stroke="{DynamicResource InkGreen}" VerticalAlignment="Center" />
+                  <TextBlock Classes="caption" Text="KEY TAKEAWAY" Foreground="{DynamicResource InkGreen}" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="{Binding Takeaway}" FontSize="16" LineHeight="25" TextWrapping="Wrap" Foreground="{DynamicResource TakeawayText}" />
+                <Button Classes="transport primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Height="NaN" Padding="14,8"
+                        IsVisible="{Binding HasNextLesson}" Command="{Binding OpenNextLessonCommand}">
+                  <TextBlock Text="{Binding NextLessonLabel}" TextWrapping="Wrap" />
+                </Button>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Live run -->
+        <DockPanel Grid.Column="1" Margin="16,0,0,0" IsVisible="{Binding IsLiveOpen}">
+          <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12">
+            <TextBlock Classes="caption" Text="RUN THE REAL .NET CODE" Foreground="{DynamicResource InkViolet}" />
+            <TextBlock Text="{Binding RunStatus}" FontSize="14.5" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimary}" />
+            <TextBlock FontSize="13.5" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}"
+                       Text="The number in [brackets] is the managed thread id. Deadlocked threads cannot be killed and stay abandoned until the app closes." />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="transport primary" Content="Run" Command="{Binding RunScenarioCommand}" IsEnabled="{Binding CanRun}" />
+              <Button Classes="transport" Content="Cancel" Command="{Binding CancelRunCommand}" IsEnabled="{Binding IsRunning}" />
+              <Button Classes="transport" Content="Clear" Command="{Binding ClearLogCommand}" />
+            </StackPanel>
+          </StackPanel>
+          <Border Classes="card" Padding="4" Background="{DynamicResource LogFill}">
+            <ListBox x:Name="LogList" ItemsSource="{Binding LogLines}" Background="Transparent">
+              <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                  <Setter Property="Padding" Value="6,1" />
+                  <Setter Property="MinHeight" Value="0" />
+                </Style>
+              </ListBox.Styles>
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:LogLine">
+                  <SelectableTextBlock Classes="log" Classes.title="{Binding IsTitle}" Classes.step="{Binding IsStep}" Classes.success="{Binding IsSuccess}"
+                                       Classes.warn="{Binding IsWarn}" Classes.error="{Binding IsError}"
+                                       Text="{Binding Text}" FontFamily="{StaticResource MonoFont}" FontSize="13" TextWrapping="Wrap" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+        </DockPanel>
+      </Grid>
+
+      <!-- Transport -->
+      <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,14,0,0">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Classes="transport" Content="&#x25C0;  Back" Command="{Binding PreviousCommand}" IsEnabled="{Binding CanGoBack}" />
+          <Button Classes="transport primary" MinWidth="120" Content="Next  &#x25B6;" Command="{Binding NextCommand}" IsEnabled="{Binding CanGoForward}" />
+        </StackPanel>
+        <Grid Grid.Column="1" Margin="24,0" VerticalAlignment="Center" RowDefinitions="Auto,Auto">
+          <TextBlock Text="{Binding StepLabel}" FontSize="13.5" Foreground="{DynamicResource TextMuted}" Margin="0,0,0,6" />
+          <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding Progress}" Height="5" CornerRadius="3" Foreground="{DynamicResource Accent}" />
+        </Grid>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+          <Button Classes="transport" Content="Restart" Command="{Binding RestartCommand}" />
+          <Button Classes="transport" Content="{Binding PlayLabel}" Command="{Binding TogglePlayCommand}" />
+          <Button Classes="transport" Content="Speed">
+            <Button.Flyout>
+              <Flyout Placement="TopEdgeAlignedRight">
+                <StackPanel Width="260" Spacing="6" Margin="4">
+                  <TextBlock Text="{Binding PlaySecondsLabel}" FontSize="13.5" Foreground="{DynamicResource TextMuted}" />
+                  <Slider Minimum="2" Maximum="15" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding PlaySeconds}" />
+                  <TextBlock Text="{Binding AnimationSpeedLabel}" FontSize="13.5" Foreground="{DynamicResource TextMuted}" />
+                  <Slider Minimum="0.25" Maximum="2.5" Value="{Binding AnimationSpeed}" />
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Panel>
+</Window>

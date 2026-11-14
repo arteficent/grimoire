@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="grimoire/grimoire.csproj" />
+  <Project Path="tests/grimoire.Tests/grimoire.Tests.csproj" />
+</Solution>
