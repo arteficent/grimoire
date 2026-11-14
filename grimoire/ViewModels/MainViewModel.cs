@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using grimoire.Abstractions;
 using grimoire.Infrastructure;
 using grimoire.Model;
+using grimoire.Rendering;
 using grimoire.Stories;
 
 namespace grimoire.ViewModels;
@@ -46,6 +47,28 @@ public sealed partial class MainViewModel : ObservableObject
     public string SearchHint => $"Search {_allLessons.Count} lessons: deadlock, hash table, TLB, warp, retry...";
 
     public string VersionLabel => $"v{AppInfo.Version}";
+
+    // ---- theme ------------------------------------------------------------------------------
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ThemeLabel))]
+    private bool _isDarkTheme = Theme.IsDark;
+
+    public string ThemeLabel => IsDarkTheme ? "White paper" : "Gray paper";
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        IsDarkTheme = !IsDarkTheme;
+        Theme.Set(IsDarkTheme);
+        foreach (var track in Tracks)
+        {
+            track.Reink();
+        }
+    }
+
+    partial void OnPageChanged(Page value) =>
+        Dispatcher.UIThread.Post(InkReplay.Request, DispatcherPriority.Background);
 
     // ---- navigation -------------------------------------------------------------------------
 

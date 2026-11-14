@@ -2,15 +2,19 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using grimoire.Model;
+using grimoire.Rendering;
 
 namespace grimoire.ViewModels;
 
-public sealed class TrackCard
+public sealed partial class TrackCard : ObservableObject
 {
+    private readonly Color _baseAccent;
+
     public TrackCard(Track track)
     {
         Track = track;
-        Accent = new ImmutableSolidColorBrush(Color.Parse(track.Accent));
+        _baseAccent = Color.Parse(track.Accent);
+        Reink();
         Lessons = track.Lessons.Select((l, i) => new LessonCard(l, this, i)).ToList();
         Sections = Lessons.GroupBy(l => l.Lesson.Section).Select(g => new SectionGroup(g.Key, g.ToList())).ToList();
     }
@@ -19,11 +23,25 @@ public sealed class TrackCard
     public string Title => Track.Title;
     public string Tagline => Track.Tagline;
     public string Monogram => Track.Monogram;
-    public IBrush Accent { get; }
+
+    [ObservableProperty]
+    private IBrush _accent = Brushes.Transparent;
+
+    [ObservableProperty]
+    private IBrush _accentWash = Brushes.Transparent;
+
     public IReadOnlyList<LessonCard> Lessons { get; }
     public IReadOnlyList<SectionGroup> Sections { get; }
     public string CountLabel => $"{Lessons.Count} lessons";
     public string SectionsLabel => string.Join("  ·  ", Sections.Select(s => s.Name));
+
+    /// <summary>Re-inks the track colour for the current paper.</summary>
+    public void Reink()
+    {
+        var ink = Palette.InkFor(_baseAccent);
+        Accent = new ImmutableSolidColorBrush(ink);
+        AccentWash = new ImmutableSolidColorBrush(Palette.WithAlpha(ink, 0.14));
+    }
 }
 
 public sealed record SectionGroup(string Name, IReadOnlyList<LessonCard> Lessons);
@@ -43,7 +61,6 @@ public sealed partial class LessonCard : ObservableObject
     public string Id => Lesson.Id;
     public string Title => Lesson.Title;
     public string Summary => Lesson.Summary;
-    public IBrush Accent => Track.Accent;
     public bool HasLive => Lesson.Live is not null;
     public string StepsLabel => $"{Lesson.Story.Steps.Count} steps";
 

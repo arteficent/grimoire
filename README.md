@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/grimoire.png" width="112" alt="grimoire icon">
+  <img src="docs/assets/grimoire.png" width="128" alt="grimoire icon: an inked magic circle with runes, a hexagram and sun, moon and star emblems">
 </p>
 
 <h1 align="center">grimoire</h1>
@@ -24,7 +24,10 @@
   <a href="#writing-a-lesson">Write a lesson</a>
 </p>
 
-![A grimoire lesson: attention weights from the word "it" to every other word in a sentence](docs/assets/screenshot-attention.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-attention-dark.png">
+  <img src="docs/assets/screenshot-attention-light.png" alt="A grimoire lesson: attention weights from the word 'it' to every other word in a sentence">
+</picture>
 
 ## What is grimoire?
 
@@ -35,6 +38,7 @@ Most explanations of deadlocks, page tables, GPU warps, TCP or transformers are 
 - **Runnable demos**: the 18 concurrency lessons can run the actual C# scenario, so you can watch a real deadlock happen and a watchdog detect it.
 - **Searchable**: find any lesson by keyword (deadlock, TLB, warp, QUIC, saga, attention...).
 - **Offline and private**: a single self-contained desktop app, no account, no telemetry.
+- **Paper and ink**: lessons are sketched in handwriting and pen strokes that draw themselves onto the page, with celestial and spell doodles around. Choose **white paper with dark pens** or **gray paper with light pens**; the choice is remembered.
 
 ## What you can learn
 
@@ -80,11 +84,17 @@ Windows SmartScreen may warn about an unsigned app: choose **More info** then **
 | <kbd>Home</kbd> | Restart the lesson |
 | <kbd>Esc</kbd> | Back to the track, then home |
 
-**Legend** explains the colours (blue = active, green = done or holding, amber = waiting, red = the problem) and **Speed** controls the animation pace.
+**Legend** explains the ink colours (blue = active, green = done or holding, amber = waiting, red = the problem), **Speed** controls the animation pace and the **White paper / Gray paper** button switches theme.
 
 <p align="center">
-  <img src="docs/assets/screenshot-home.png" width="49%" alt="Home screen with topic tracks">
-  <img src="docs/assets/screenshot-sharding.png" width="49%" alt="Consistent hashing lesson">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-home-dark.png">
+    <img src="docs/assets/screenshot-home-light.png" width="49%" alt="Home screen with topic tracks">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-sharding-dark.png">
+    <img src="docs/assets/screenshot-sharding-light.png" width="49%" alt="Consistent hashing lesson">
+  </picture>
 </p>
 
 ## Build from source
@@ -113,9 +123,10 @@ Use `-r osx-arm64` or `-r linux-x64` for other platforms.
 | Layer | Technology |
 | --- | --- |
 | Runtime and language | .NET 10, C# 14 (collection expressions, raw string literals, primary constructors) |
-| UI framework | [Avalonia UI](https://avaloniaui.net/) 11.3 with the Fluent theme and the Inter font |
+| UI framework | [Avalonia UI](https://avaloniaui.net/) 11.3 with the Fluent theme recoloured as two paper themes |
+| Fonts | [Kalam](https://fonts.google.com/specimen/Kalam) (handwriting), [Cinzel Decorative](https://fonts.google.com/specimen/Cinzel+Decorative) (titles) and [Courier Prime](https://fonts.google.com/specimen/Courier+Prime) (code), bundled under the SIL Open Font License 1.1 |
 | MVVM | [CommunityToolkit.Mvvm](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/) 8.4 source generators |
-| Rendering | A custom `SceneCanvas` control drawing every frame with `DrawingContext`, animating positions, sizes, colours and fades between steps |
+| Rendering | A custom `SceneCanvas` control drawing every frame with `DrawingContext`: wobbly pen outlines, watercolour washes and handwriting that ink themselves in between steps |
 | Tests | xUnit, checking the whole curriculum on every pull request |
 | CI/CD | GitHub Actions: pull-request checks and a versioned release workflow |
 | Website | Static GitHub Pages site in `docs/`, generated lesson catalog |

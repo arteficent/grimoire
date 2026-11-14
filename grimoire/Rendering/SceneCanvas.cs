@@ -33,7 +33,8 @@ public sealed partial class SceneCanvas : Control
     private const double DiagramWidth = 1000;
     private const double DiagramHeight = 560;
 
-    private static readonly FontFamily MonoFamily = new("Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace");
+    private static readonly FontFamily MonoFamily = new("fonts:Grimoire#Courier Prime");
+    private static readonly FontFamily InkFamily = new("fonts:Grimoire#Kalam");
 
     private readonly Dictionary<string, Point> _threadPos = [];
     private readonly Dictionary<string, Point> _resourcePos = [];
@@ -407,7 +408,7 @@ public sealed partial class SceneCanvas : Control
             text,
             CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight,
-            new Typeface(mono ? MonoFamily : FontFamily.Default, FontStyle.Normal, weight),
+            new Typeface(mono ? MonoFamily : InkFamily, FontStyle.Normal, weight),
             size,
             Palette.Brush(color));
         if (maxWidth > 0)
@@ -439,14 +440,14 @@ public sealed partial class SceneCanvas : Control
 
     private static void DrawDotGrid(DrawingContext dc, Rect bounds)
     {
-        var brush = Palette.Brush(Palette.Grid);
-        for (var x = 12.0; x < bounds.Width; x += 28)
+        // Faint ruled lines with a margin rule, like a notebook page.
+        var rule = new Pen(Palette.Brush(Palette.Grid), 1);
+        for (var y = 34.0; y < bounds.Height; y += 30)
         {
-            for (var y = 12.0; y < bounds.Height; y += 28)
-            {
-                dc.FillRectangle(brush, new Rect(x, y, 1.6, 1.6));
-            }
+            dc.DrawLine(rule, new Point(0, y), new Point(bounds.Width, y));
         }
+
+        dc.DrawLine(new Pen(Palette.Brush(Palette.Wait, 0.18), 1), new Point(10, 0), new Point(10, bounds.Height));
     }
 
     private static void DrawSectionCaption(DrawingContext dc, Point at, string title, string subtitle)
@@ -581,12 +582,7 @@ public sealed partial class SceneCanvas : Control
             dc.DrawRectangle(Palette.Brush(Palette.Wait, pulse), null, box.Inflate(6), 15, 15);
         }
 
-        dc.DrawRectangle(
-            Palette.Brush(Palette.Panel),
-            new Pen(Palette.Brush(toneColor, r.Tone == Tone.Neutral ? 0.7 : 1), r.Tone == Tone.Neutral ? 1.5 : 2.5),
-            box,
-            12,
-            12);
+        Ink.Box(dc, box, 12, toneColor, r.Tone == Tone.Neutral ? 0.8 : 1, r.Tone == Tone.Neutral ? 1.5 : 2.3, Palette.Panel, 1, Ink.Seed(r.Id));
         dc.DrawRectangle(Palette.Brush(kindColor), null, new Rect(box.X + 1, box.Y + 10, 3, box.Height - 20), 1.5, 1.5);
 
         var inner = box.Width - 24;
@@ -651,12 +647,7 @@ public sealed partial class SceneCanvas : Control
             dc.DrawRectangle(Palette.Brush(phaseColor, pulse), null, pill.Inflate(4), 22, 22);
         }
 
-        dc.DrawRectangle(
-            Palette.Brush(color, faded ? 0.18 : 0.22),
-            new Pen(Palette.Brush(faded ? Palette.Dim : phaseColor), 2),
-            pill,
-            18,
-            18);
+        Ink.Box(dc, pill, 18, faded ? Palette.Dim : phaseColor, 1, 1.8, color, faded ? 0.12 : 0.18, Ink.Seed(t.Id));
         dc.DrawEllipse(Palette.Brush(color, faded ? 0.4 : 1), null, new Point(pill.X + 16, pill.Center.Y), 6, 6);
 
         var textWidth = pill.Width - 52;
@@ -769,7 +760,7 @@ public sealed partial class SceneCanvas : Control
         y = Math.Clamp(y, 4, Math.Max(4, bounds.Bottom - h - 4));
         var rect = new Rect(x, y, w, h);
 
-        dc.DrawRectangle(Palette.Brush(Color.Parse("#1B2747"), 0.97), new Pen(Palette.Brush(color, 0.9), 1.4), rect, 9, 9);
+        dc.DrawRectangle(Palette.Brush(Palette.Panel, 0.97), new Pen(Palette.Brush(color, 0.9), 1.4), rect, 9, 9);
         var tailX = x > pill.X ? rect.X : rect.Right;
         var tip = x > pill.X ? new Point(pill.Right + 2, pill.Center.Y) : new Point(pill.X - 2, pill.Center.Y);
         var geometry = new StreamGeometry();
@@ -794,7 +785,7 @@ public sealed partial class SceneCanvas : Control
         var rect = new Rect(area.Center.X - w / 2, area.Bottom - h - 12, w, h);
         var pulse = tone == Tone.Bad ? 0.25 + 0.15 * Math.Sin(_time * 5) : 0.18;
         dc.DrawRectangle(Palette.Brush(color, pulse), null, rect.Inflate(5), 16, 16);
-        dc.DrawRectangle(Palette.Brush(Palette.Panel, 0.96), new Pen(Palette.Brush(color), 2), rect, 12, 12);
+        Ink.Box(dc, rect, 12, color, 1, 2, Palette.Panel, 0.96, Ink.Seed(banner));
         dc.DrawEllipse(Palette.Brush(color), null, new Point(rect.X + 16, rect.Center.Y), 5, 5);
         dc.DrawText(text, new Point(rect.X + 28, rect.Y + 8));
     }
@@ -806,13 +797,13 @@ public sealed partial class SceneCanvas : Control
         if (scene.Cores.Count > 0)
         {
             var first = layout.Cores.Values.Min(r => r.X);
-            var busPen = new Pen(Palette.Brush(Color.Parse("#2E4372")), 4, lineCap: PenLineCap.Round);
+            var busPen = new Pen(Palette.Brush(Palette.Pencil), 4, lineCap: PenLineCap.Round);
             dc.DrawLine(busPen, new Point(first, layout.BusY), new Point(layout.Ram.X, layout.BusY));
             var busLabel = Txt("coherence interconnect + shared L3  (cache lines move here, 64 bytes at a time)", 10, Palette.Dim);
             dc.DrawText(busLabel, new Point(first + 6, layout.BusY + 4));
             foreach (var core in layout.Cores.Values)
             {
-                dc.DrawLine(new Pen(Palette.Brush(Color.Parse("#2E4372")), 2), new Point(core.Center.X, core.Bottom), new Point(core.Center.X, layout.BusY));
+                dc.DrawLine(new Pen(Palette.Brush(Palette.Pencil), 2), new Point(core.Center.X, core.Bottom), new Point(core.Center.X, layout.BusY));
             }
         }
 
@@ -832,12 +823,12 @@ public sealed partial class SceneCanvas : Control
         var flash = FlashAmount("core:" + core.Index);
         if (flash > 0)
         {
-            dc.DrawRectangle(Palette.Brush(Color.Parse("#7AA2FF"), 0.3 * flash), null, box.Inflate(3 + (1 - flash) * 6), 12, 12);
+            dc.DrawRectangle(Palette.Brush(Palette.Info, 0.3 * flash), null, box.Inflate(3 + (1 - flash) * 6), 12, 12);
         }
 
         var thread = core.ThreadId is null ? null : scene.Threads.FirstOrDefault(t => t.Id == core.ThreadId);
         var border = thread is null ? Palette.PanelBorder : Palette.ForPhase(thread.Phase);
-        dc.DrawRectangle(Palette.Brush(Color.Parse("#0E1628")), new Pen(Palette.Brush(border, 0.9), 1.5), box, 10, 10);
+        Ink.Box(dc, box, 10, border, 0.9, 1.5, Palette.Panel, 1, core.Index);
 
         var inner = box.Width - 20;
         dc.DrawText(Txt($"CORE {core.Index}", 10, Palette.Muted, FontWeight.Bold), new Point(box.X + 10, box.Y + 7));
@@ -858,7 +849,7 @@ public sealed partial class SceneCanvas : Control
         var y = chip.Bottom + 6;
         if (!string.IsNullOrEmpty(core.Register))
         {
-            dc.DrawText(TxtLine("regs  " + core.Register, 11, Color.Parse("#C4B5FD"), inner, mono: true), new Point(box.X + 10, y));
+            dc.DrawText(TxtLine("regs  " + core.Register, 11, Palette.Violet, inner, mono: true), new Point(box.X + 10, y));
             y += 18;
         }
 
@@ -886,7 +877,7 @@ public sealed partial class SceneCanvas : Control
 
         if (!string.IsNullOrEmpty(core.Note))
         {
-            var note = Txt(core.Note!, 10.5, Color.Parse("#FBBF24"), maxWidth: inner);
+            var note = Txt(core.Note!, 10.5, Palette.Warn, maxWidth: inner);
             note.MaxLineCount = 2;
             note.Trimming = TextTrimming.CharacterEllipsis;
             dc.DrawText(note, new Point(box.X + 10, box.Bottom - note.Height - 6));
@@ -896,7 +887,7 @@ public sealed partial class SceneCanvas : Control
     private void DrawRam(DrawingContext dc, SceneState scene, Layout layout)
     {
         var ram = layout.Ram;
-        dc.DrawRectangle(Palette.Brush(Color.Parse("#0E1628")), new Pen(Palette.Brush(Color.Parse("#2E4372")), 1.5), ram, 10, 10);
+        Ink.Box(dc, ram, 10, Palette.Pencil, 1, 1.5, Palette.Panel, 1, 99);
         dc.DrawText(Txt("MAIN MEMORY (DRAM)  ~100 ns away", 10, Palette.Muted, FontWeight.Bold), new Point(ram.X + 10, ram.Y + 8));
 
         foreach (var cell in scene.Memory)
@@ -908,10 +899,10 @@ public sealed partial class SceneCanvas : Control
             }
 
             var flash = FlashAmount("ram:" + cell.Key);
-            var tone = cell.Tone == Tone.Neutral ? Color.Parse("#2E4372") : Palette.ForTone(cell.Tone);
+            var tone = Palette.ForTone(cell.Tone);
             if (flash > 0)
             {
-                dc.DrawRectangle(Palette.Brush(tone == Color.Parse("#2E4372") ? Color.Parse("#7AA2FF") : tone, 0.45 * flash), null, rect.Inflate(3), 6, 6);
+                dc.DrawRectangle(Palette.Brush(cell.Tone == Tone.Neutral ? Palette.Info : tone, 0.45 * flash), null, rect.Inflate(3), 6, 6);
             }
 
             dc.DrawRectangle(Palette.Brush(Palette.Panel), new Pen(Palette.Brush(tone), 1), rect, 5, 5);

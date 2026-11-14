@@ -1,47 +1,145 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="grimoire.App"
-             RequestedThemeVariant="Dark">
+             RequestedThemeVariant="Light">
 
   <Application.Resources>
-    <SolidColorBrush x:Key="AppBackground" Color="#0B1020" />
-    <SolidColorBrush x:Key="PanelBackground" Color="#111A2E" />
-    <SolidColorBrush x:Key="PanelBorder" Color="#1F2C4A" />
-    <SolidColorBrush x:Key="TextPrimary" Color="#E6ECFF" />
-    <SolidColorBrush x:Key="TextMuted" Color="#8A9BBE" />
-    <SolidColorBrush x:Key="Accent" Color="#7AA2FF" />
-    <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace</FontFamily>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <!-- White paper, dark pens -->
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AppBackground" Color="#FBF8F1" />
+          <SolidColorBrush x:Key="PanelBackground" Color="#FFFDF8" />
+          <SolidColorBrush x:Key="PanelBorder" Color="#CFC5B1" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#1F2330" />
+          <SolidColorBrush x:Key="TextMuted" Color="#5A5E6B" />
+          <SolidColorBrush x:Key="TextBody" Color="#2B2F3C" />
+          <SolidColorBrush x:Key="TextDeeper" Color="#4B2E83" />
+          <SolidColorBrush x:Key="Accent" Color="#1E4FA8" />
+          <SolidColorBrush x:Key="AccentHover" Color="#2D63C8" />
+          <SolidColorBrush x:Key="OnAccent" Color="#FBF8F1" />
+          <SolidColorBrush x:Key="InkBlue" Color="#1E4FA8" />
+          <SolidColorBrush x:Key="InkGreen" Color="#1B7347" />
+          <SolidColorBrush x:Key="InkAmber" Color="#A35B00" />
+          <SolidColorBrush x:Key="InkRed" Color="#B42318" />
+          <SolidColorBrush x:Key="InkViolet" Color="#6A3DB8" />
+          <SolidColorBrush x:Key="ButtonFill" Color="#F3EDE0" />
+          <SolidColorBrush x:Key="ButtonHover" Color="#EAE2D1" />
+          <SolidColorBrush x:Key="TileHover" Color="#FFF8E8" />
+          <SolidColorBrush x:Key="ChipFill" Color="#F1EBDE" />
+          <SolidColorBrush x:Key="ChipLiveFill" Color="#EDE5FA" />
+          <SolidColorBrush x:Key="ChipDoneFill" Color="#E2F2E8" />
+          <SolidColorBrush x:Key="CodeActive" Color="#B3FFE27A" />
+          <SolidColorBrush x:Key="CodeText" Color="#3D4250" />
+          <SolidColorBrush x:Key="CodeLineNo" Color="#A39C8C" />
+          <SolidColorBrush x:Key="TakeawayFill" Color="#EEF6EF" />
+          <SolidColorBrush x:Key="TakeawayText" Color="#1F3A2B" />
+          <SolidColorBrush x:Key="LogFill" Color="#FFFDF8" />
+          <SolidColorBrush x:Key="LogInfo" Color="#3D4250" />
+          <SolidColorBrush x:Key="LogStep" Color="#0E7490" />
+          <SolidColorBrush x:Key="DoodleInk" Color="#7A7060" />
+          <SolidColorBrush x:Key="DoodleGold" Color="#A8741A" />
+        </ResourceDictionary>
+        <!-- Gray paper, light pens -->
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AppBackground" Color="#393B40" />
+          <SolidColorBrush x:Key="PanelBackground" Color="#42454B" />
+          <SolidColorBrush x:Key="PanelBorder" Color="#64686F" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#F4F0E6" />
+          <SolidColorBrush x:Key="TextMuted" Color="#C6C1B5" />
+          <SolidColorBrush x:Key="TextBody" Color="#E8E3D8" />
+          <SolidColorBrush x:Key="TextDeeper" Color="#D9C8FF" />
+          <SolidColorBrush x:Key="Accent" Color="#9CC2FF" />
+          <SolidColorBrush x:Key="AccentHover" Color="#B8D3FF" />
+          <SolidColorBrush x:Key="OnAccent" Color="#2B2D31" />
+          <SolidColorBrush x:Key="InkBlue" Color="#9CC2FF" />
+          <SolidColorBrush x:Key="InkGreen" Color="#8EE3B0" />
+          <SolidColorBrush x:Key="InkAmber" Color="#FFD27A" />
+          <SolidColorBrush x:Key="InkRed" Color="#FF9A8F" />
+          <SolidColorBrush x:Key="InkViolet" Color="#CDB4FF" />
+          <SolidColorBrush x:Key="ButtonFill" Color="#45484E" />
+          <SolidColorBrush x:Key="ButtonHover" Color="#4E5158" />
+          <SolidColorBrush x:Key="TileHover" Color="#474A51" />
+          <SolidColorBrush x:Key="ChipFill" Color="#4A4D54" />
+          <SolidColorBrush x:Key="ChipLiveFill" Color="#4B4560" />
+          <SolidColorBrush x:Key="ChipDoneFill" Color="#3E5248" />
+          <SolidColorBrush x:Key="CodeActive" Color="#59FFD27A" />
+          <SolidColorBrush x:Key="CodeText" Color="#CFCAC0" />
+          <SolidColorBrush x:Key="CodeLineNo" Color="#8F8B83" />
+          <SolidColorBrush x:Key="TakeawayFill" Color="#3D4A44" />
+          <SolidColorBrush x:Key="TakeawayText" Color="#E3F5EA" />
+          <SolidColorBrush x:Key="LogFill" Color="#35373C" />
+          <SolidColorBrush x:Key="LogInfo" Color="#E8E3D8" />
+          <SolidColorBrush x:Key="LogStep" Color="#8EE0EA" />
+          <SolidColorBrush x:Key="DoodleInk" Color="#CFC9BC" />
+          <SolidColorBrush x:Key="DoodleGold" Color="#FFD27A" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <FontFamily x:Key="MonoFont">fonts:Grimoire#Courier Prime</FontFamily>
+      <FontFamily x:Key="TitleFont">fonts:Grimoire#Cinzel Decorative</FontFamily>
+    </ResourceDictionary>
   </Application.Resources>
 
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Light" Accent="#1E4FA8" RegionColor="#FBF8F1" AltHigh="#FFFDF8" AltMedium="#FFFDF8" AltMediumHigh="#FFFDF8" AltMediumLow="#FFFDF8" AltLow="#FFFDF8"
+                               BaseHigh="#1F2330" BaseMediumHigh="#3D4250" BaseMedium="#5A5E6B" BaseMediumLow="#8C8473" BaseLow="#D8CFBD"
+                               ChromeLow="#F3EDE0" ChromeMediumLow="#F7F2E8" ChromeMedium="#EFE8DA" ChromeHigh="#D8CFBD" ChromeGray="#8C8473"
+                               ListLow="#F1EBDE" ListMedium="#E6DECD" ErrorText="#B42318" />
+        <ColorPaletteResources x:Key="Dark" Accent="#9CC2FF" RegionColor="#393B40" AltHigh="#393B40" AltMedium="#393B40" AltMediumHigh="#393B40" AltMediumLow="#393B40" AltLow="#393B40"
+                               BaseHigh="#F4F0E6" BaseMediumHigh="#E0DBD0" BaseMedium="#C6C1B5" BaseMediumLow="#A8A398" BaseLow="#5E6269"
+                               ChromeLow="#2F3135" ChromeMediumLow="#4E5158" ChromeMedium="#45484E" ChromeHigh="#8F8B83" ChromeGray="#A8A398"
+                               ListLow="#45484E" ListMedium="#50535A" ErrorText="#FF9A8F" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+
+    <Style Selector="FlyoutPresenter, ToolTip">
+      <Setter Property="FontFamily" Value="fonts:Grimoire#Kalam" />
+    </Style>
 
     <Style Selector="Border.card">
-      <Setter Property="Background" Value="{StaticResource PanelBackground}" />
-      <Setter Property="BorderBrush" Value="{StaticResource PanelBorder}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Background" Value="{DynamicResource PanelBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="CornerRadius" Value="4,12,6,14" />
       <Setter Property="Padding" Value="14" />
     </Style>
 
     <Style Selector="TextBlock.caption">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontFamily" Value="{StaticResource TitleFont}" />
+      <Setter Property="FontSize" Value="12" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="LetterSpacing" Value="1.2" />
-      <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
     </Style>
 
-    <Style Selector="TextBlock.body">
-      <Setter Property="FontSize" Value="13.5" />
-      <Setter Property="LineHeight" Value="21" />
-      <Setter Property="TextWrapping" Value="Wrap" />
-      <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+    <Style Selector="TextBlock.title">
+      <Setter Property="FontFamily" Value="{StaticResource TitleFont}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
 
-    <!-- Code viewer lines -->
+    <!-- Pages ink in as they appear -->
+    <Style Selector=":is(Control).page[IsVisible=True]">
+      <Style.Animations>
+        <Animation Duration="0:0:0.45" Easing="CubicEaseOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="TranslateTransform.Y" Value="8" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="TranslateTransform.Y" Value="0" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Code viewer lines: the active line gets a highlighter stroke -->
     <Style Selector="Border.codeLine">
       <Setter Property="Padding" Value="6,1" />
-      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="CornerRadius" Value="2,6,3,7" />
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="Transitions">
         <Transitions>
@@ -50,46 +148,59 @@
       </Setter>
     </Style>
     <Style Selector="Border.codeLine.active">
-      <Setter Property="Background" Value="#33507DFF" />
+      <Setter Property="Background" Value="{DynamicResource CodeActive}" />
     </Style>
     <Style Selector="Border.codeLine TextBlock">
       <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
-      <Setter Property="FontSize" Value="12.5" />
-      <Setter Property="Foreground" Value="#9FB0D3" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource CodeText}" />
     </Style>
     <Style Selector="Border.codeLine.active TextBlock">
-      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+      <Setter Property="FontWeight" Value="Bold" />
     </Style>
     <Style Selector="Border.codeLine TextBlock.lineNo">
-      <Setter Property="Foreground" Value="#4A5A80" />
+      <Setter Property="Foreground" Value="{DynamicResource CodeLineNo}" />
     </Style>
 
     <!-- Transport buttons -->
     <Style Selector=":is(Button).transport">
       <Setter Property="MinWidth" Value="92" />
-      <Setter Property="Height" Value="36" />
-      <Setter Property="CornerRadius" Value="18" />
+      <Setter Property="Height" Value="38" />
+      <Setter Property="CornerRadius" Value="16,8,18,6" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
-      <Setter Property="Background" Value="#1A2540" />
-      <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+      <Setter Property="Background" Value="{DynamicResource ButtonFill}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+      <Setter Property="FontSize" Value="15" />
+    </Style>
+    <Style Selector=":is(Button).transport:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource ButtonHover}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
     <Style Selector="Button.primary">
-      <Setter Property="Background" Value="#3D63DD" />
+      <Setter Property="Background" Value="{DynamicResource Accent}" />
+      <Setter Property="Foreground" Value="{DynamicResource OnAccent}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
     </Style>
     <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
-      <Setter Property="Background" Value="#5277F0" />
+      <Setter Property="Background" Value="{DynamicResource AccentHover}" />
+      <Setter Property="Foreground" Value="{DynamicResource OnAccent}" />
     </Style>
     <Style Selector="ToggleButton.transport:checked /template/ ContentPresenter">
-      <Setter Property="Background" Value="#5B3FA8" />
+      <Setter Property="Background" Value="{DynamicResource InkViolet}" />
+      <Setter Property="Foreground" Value="{DynamicResource OnAccent}" />
     </Style>
 
-    <!-- Clickable cards (tracks, lessons) -->
+    <!-- Clickable cards (tracks, lessons): pages of a notebook with an uneven pen border -->
     <Style Selector="Button.tile">
-      <Setter Property="Background" Value="{StaticResource PanelBackground}" />
-      <Setter Property="BorderBrush" Value="{StaticResource PanelBorder}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="Background" Value="{DynamicResource PanelBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="CornerRadius" Value="6,18,8,16" />
       <Setter Property="Padding" Value="20" />
       <Setter Property="Margin" Value="0,0,16,16" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -97,41 +208,72 @@
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Transitions">
         <Transitions>
-          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" />
         </Transitions>
       </Setter>
     </Style>
     <Style Selector="Button.tile:pointerover">
-      <Setter Property="RenderTransform" Value="translateY(-3px)" />
+      <Setter Property="RenderTransform" Value="translateY(-3px) rotate(-0.6deg)" />
     </Style>
     <Style Selector="Button.tile:pointerover /template/ ContentPresenter">
-      <Setter Property="Background" Value="#16213A" />
-      <Setter Property="BorderBrush" Value="#3D63DD" />
+      <Setter Property="Background" Value="{DynamicResource TileHover}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
     </Style>
 
     <!-- Quiet text-like buttons (back links) -->
     <Style Selector="Button.link">
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
       <Setter Property="Padding" Value="8,6" />
       <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontSize" Value="15" />
       <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Button.link:pointerover /template/ ContentPresenter">
-      <Setter Property="Background" Value="#16213A" />
-      <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+      <Setter Property="Background" Value="{DynamicResource ButtonHover}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
 
     <Style Selector="Border.chip">
-      <Setter Property="CornerRadius" Value="10" />
-      <Setter Property="Padding" Value="8,2" />
-      <Setter Property="Background" Value="#1A2540" />
+      <Setter Property="CornerRadius" Value="10,4,10,4" />
+      <Setter Property="Padding" Value="8,1" />
+      <Setter Property="Background" Value="{DynamicResource ChipFill}" />
+    </Style>
+
+    <!-- Monogram seals on track and lesson cards -->
+    <Style Selector="Border.seal">
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="40" />
+    </Style>
+    <Style Selector="Border.seal > TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource TitleFont}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="SelectableTextBlock.log">
+      <Setter Property="Foreground" Value="{DynamicResource LogInfo}" />
+    </Style>
+    <Style Selector="SelectableTextBlock.log.title">
+      <Setter Property="Foreground" Value="{DynamicResource InkBlue}" />
+    </Style>
+    <Style Selector="SelectableTextBlock.log.step">
+      <Setter Property="Foreground" Value="{DynamicResource LogStep}" />
+    </Style>
+    <Style Selector="SelectableTextBlock.log.success">
+      <Setter Property="Foreground" Value="{DynamicResource InkGreen}" />
+    </Style>
+    <Style Selector="SelectableTextBlock.log.warn">
+      <Setter Property="Foreground" Value="{DynamicResource InkAmber}" />
+    </Style>
+    <Style Selector="SelectableTextBlock.log.error">
+      <Setter Property="Foreground" Value="{DynamicResource InkRed}" />
     </Style>
 
     <Style Selector="Expander">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="CornerRadius" Value="6,14,8,12" />
     </Style>
   </Application.Styles>
 </Application>

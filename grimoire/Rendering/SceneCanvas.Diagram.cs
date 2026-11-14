@@ -7,7 +7,6 @@ namespace grimoire.Rendering;
 /// <summary>Generic diagram rendering: boxes, circles, tables, regions and links in a 1000 x 560 virtual canvas.</summary>
 public sealed partial class SceneCanvas
 {
-    private static readonly Color LinkNeutral = Color.Parse("#5B6B92");
 
     private void RenderDiagram(DrawingContext dc, SceneState scene, Rect bounds)
     {
@@ -86,7 +85,7 @@ public sealed partial class SceneCanvas
     }
 
     private double AppearAlpha(string id) =>
-        _appear.TryGetValue(id, out var start) ? Math.Clamp((_time - start) / 0.45, 0, 1) : 1;
+        _appear.TryGetValue(id, out var start) ? Math.Clamp((_time - start) / 0.8, 0, 1) : 1;
 
     private static (Color Fill, Color Border, Color Text) ShapeColors(Shape s)
     {
@@ -98,11 +97,8 @@ public sealed partial class SceneCanvas
 
         return s.Tone switch
         {
-            Tone.Info => (Color.Parse("#1C2D5A"), Color.Parse("#7AA2FF"), Palette.Text),
-            Tone.Good => (Color.Parse("#12352B"), Color.Parse("#34D399"), Palette.Text),
-            Tone.Warn => (Color.Parse("#3A2E12"), Color.Parse("#FBBF24"), Palette.Text),
-            Tone.Bad => (Color.Parse("#3B1520"), Color.Parse("#F43F5E"), Palette.Text),
-            _ => (Color.Parse("#16213A"), Color.Parse("#34477A"), Palette.Text)
+            Tone.Neutral => (Palette.Panel, Palette.Pencil, Palette.Text),
+            _ => (Palette.WithAlpha(Palette.ForTone(s.Tone), 0.16), Palette.ForTone(s.Tone), Palette.Text)
         };
     }
 
@@ -129,10 +125,7 @@ public sealed partial class SceneCanvas
         DrawFlash(dc, s, rect, border, radius);
 
         var fillAlpha = (s.Ghost ? 0.35 : 1) * alpha;
-        var pen = s.Ghost
-            ? new Pen(Palette.Brush(border, 0.6 * alpha), 1.4, new DashStyle([3, 3], 0))
-            : new Pen(Palette.Brush(border, 0.95 * alpha), 1.6);
-        dc.DrawRectangle(Palette.Brush(fill, fillAlpha), pen, rect, radius, radius);
+        Ink.Box(dc, rect, radius, border, s.Ghost ? 0.6 : 0.95, 1.6, Palette.WithAlpha(fill, 1), fill.A / 255.0 * fillAlpha, Ink.Seed(s.Id), alpha, s.Ghost ? new DashStyle([3, 3], 0) : null);
 
         if (s.Fill > 0)
         {
@@ -166,10 +159,7 @@ public sealed partial class SceneCanvas
             dc.DrawEllipse(Palette.Brush(border, pulse), null, rect.Center, r + 5, r + 5);
         }
 
-        var pen = s.Ghost
-            ? new Pen(Palette.Brush(border, 0.6 * alpha), 1.4, new DashStyle([3, 3], 0))
-            : new Pen(Palette.Brush(border, 0.95 * alpha), 2);
-        dc.DrawEllipse(Palette.Brush(fill, (s.Ghost ? 0.35 : 1) * alpha), pen, rect.Center, r, r);
+        Ink.Circle(dc, rect.Center, r, border, s.Ghost ? 0.6 : 0.95, 2, Palette.WithAlpha(fill, 1), fill.A / 255.0 * (s.Ghost ? 0.35 : 1) * alpha, Ink.Seed(s.Id), alpha, s.Ghost ? new DashStyle([3, 3], 0) : null);
 
         if (!string.IsNullOrEmpty(s.Text))
         {
@@ -217,13 +207,13 @@ public sealed partial class SceneCanvas
         var x = rect.Center.X - maxWidth / 2;
         if (main is not null)
         {
-            dc.DrawText(main, new Point(x, y));
+            Ink.Write(dc, main, new Point(x, y), alpha);
             y += main.Height;
         }
 
         if (sub is not null)
         {
-            dc.DrawText(sub, new Point(x, y));
+            Ink.Write(dc, sub, new Point(x, y), alpha);
         }
     }
 
@@ -239,7 +229,7 @@ public sealed partial class SceneCanvas
     {
         var (fill, border, _) = ShapeColors(s);
         DrawFlash(dc, s, rect, border, 8);
-        dc.DrawRectangle(Palette.Brush(Palette.Panel, alpha), new Pen(Palette.Brush(border, 0.9 * alpha), 1.4), rect, 8, 8);
+        Ink.Box(dc, rect, 8, border, 0.9, 1.4, Palette.Panel, 1, Ink.Seed(s.Id), alpha);
         dc.DrawRectangle(Palette.Brush(fill, alpha), null, new Rect(rect.X + 1, rect.Y + 1, rect.Width - 2, 28), 7, 7);
         dc.DrawText(TxtLine(s.Text ?? string.Empty, 12, Palette.WithAlpha(Palette.Text, alpha), rect.Width - 16, FontWeight.Bold), new Point(rect.X + 9, rect.Y + 6));
 
@@ -249,10 +239,10 @@ public sealed partial class SceneCanvas
             var row = new Rect(rect.X + 4, y, rect.Width - 8, 22);
             if (s.HotRows.Contains(i))
             {
-                dc.DrawRectangle(Palette.Brush(Color.Parse("#7AA2FF"), 0.25 * alpha), null, row, 4, 4);
+                Ink.Marker(dc, row, Palette.Warn, 0.28 * alpha, Ink.Seed(s.Id) + i);
             }
 
-            var color = s.HotRows.Contains(i) ? Palette.Text : Color.Parse("#B8C4E0");
+            var color = s.HotRows.Contains(i) ? Palette.Text : Palette.Muted;
             dc.DrawText(TxtLine(s.Rows[i], 12, Palette.WithAlpha(color, alpha), rect.Width - 18, mono: s.Mono), new Point(rect.X + 9, y + 3));
             y += 24;
         }
@@ -260,7 +250,7 @@ public sealed partial class SceneCanvas
 
     private void DrawRegion(DrawingContext dc, Shape s, Rect rect)
     {
-        var border = s.Tone == Tone.Neutral ? Color.Parse("#2A3A60") : ShapeColors(s).Border;
+        var border = s.Tone == Tone.Neutral ? Palette.Pencil : ShapeColors(s).Border;
         var alpha = AppearAlpha(s.Id);
         dc.DrawRectangle(
             Palette.Brush(border, 0.07 * alpha),
@@ -270,7 +260,7 @@ public sealed partial class SceneCanvas
             14);
         if (!string.IsNullOrEmpty(s.Text))
         {
-            dc.DrawText(TxtLine(s.Text!.ToUpperInvariant(), 10.5, Palette.WithAlpha(border == Color.Parse("#2A3A60") ? Palette.Muted : border, alpha), rect.Width - 20, FontWeight.Bold), new Point(rect.X + 12, rect.Y + 8));
+            dc.DrawText(TxtLine(s.Text!.ToUpperInvariant(), 10.5, Palette.WithAlpha(s.Tone == Tone.Neutral ? Palette.Muted : border, alpha), rect.Width - 20, FontWeight.Bold), new Point(rect.X + 12, rect.Y + 8));
         }
     }
 
@@ -285,22 +275,23 @@ public sealed partial class SceneCanvas
         var toShape = scene.Shapes.First(s => s.Id == link.To);
         var from = Anchor(fromShape, a, b.Center);
         var to = Anchor(toShape, b, a.Center);
-        var color = link.Tone == Tone.Neutral ? LinkNeutral : ShapeColors(new Shape { Id = string.Empty, Tone = link.Tone }).Border;
+        var color = link.Tone == Tone.Neutral ? Palette.Pencil : ShapeColors(new Shape { Id = string.Empty, Tone = link.Tone }).Border;
         var alpha = Math.Min(AppearAlpha(link.From), AppearAlpha(link.To));
 
         IDashStyle? dash = link.Animate
             ? new DashStyle([3, 2], -_time * 6)
             : link.Dashed ? new DashStyle([3, 3], 0) : null;
-        dc.DrawLine(new Pen(Palette.Brush(color, 0.9 * alpha), link.Tone == Tone.Neutral ? 1.8 : 2.4, dash), from, to);
+        var linkPen = Ink.Pen(color, 0.9 * alpha, link.Tone == Tone.Neutral ? 1.6 : 2.2, dash);
+        Ink.Stroke(dc, Ink.Line(from, to, Ink.Seed(link.From + link.To)), linkPen);
         if (link.Arrow)
         {
-            DrawArrowHead(dc, to, to - from, Palette.WithAlpha(color, alpha), 8);
+            Ink.Arrow(dc, to, to - from, linkPen, 9);
         }
 
         if (!string.IsNullOrEmpty(link.Label))
         {
             var mid = new Point((from.X + to.X) / 2, (from.Y + to.Y) / 2);
-            var label = Txt(link.Label!, 10.5, Palette.WithAlpha(color == LinkNeutral ? Palette.Muted : color, alpha), FontWeight.SemiBold);
+            var label = Txt(link.Label!, 10.5, Palette.WithAlpha(link.Tone == Tone.Neutral ? Palette.Muted : color, alpha), FontWeight.SemiBold);
             var bg = new Rect(mid.X - label.Width / 2 - 4, mid.Y - label.Height / 2 - 1, label.Width + 8, label.Height + 2);
             dc.DrawRectangle(Palette.Brush(Palette.Background, 0.9 * alpha), null, bg, 5, 5);
             dc.DrawText(label, new Point(bg.X + 4, bg.Y + 1));
