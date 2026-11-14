@@ -229,3 +229,7 @@ Issues and pull requests are welcome, especially new lessons, corrections and tr
 ## License
 
 grimoire is released under the [MIT License](LICENSE). Copyright (c) 2026 arteficent.
+
+---
+
+<p align="center">Made with ink and curiosity by <b>Sourabh Singh</b></p>
