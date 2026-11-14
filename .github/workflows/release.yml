@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Part of the version to increment
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    name: Build and publish win-x64
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Bump version
+        id: version
+        shell: pwsh
+        run: |
+          $path = 'Directory.Build.props'
+          $content = Get-Content $path -Raw
+          if ($content -notmatch '<VersionPrefix>(\d+)\.(\d+)\.(\d+)</VersionPrefix>') { throw "VersionPrefix not found in $path" }
+          [int]$major = $Matches[1]; [int]$minor = $Matches[2]; [int]$patch = $Matches[3]
+          switch ('${{ inputs.bump }}') {
+            'major' { $major++; $minor = 0; $patch = 0 }
+            'minor' { $minor++; $patch = 0 }
+            default { $patch++ }
+          }
+          $version = "$major.$minor.$patch"
+          if (git tag --list "v$version") { throw "Tag v$version already exists" }
+          $content = $content -replace '<VersionPrefix>[^<]+</VersionPrefix>', "<VersionPrefix>$version</VersionPrefix>"
+          Set-Content -Path $path -Value $content -NoNewline
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Releasing v$version"
+
+      - name: Test
+        run: dotnet test grimoire.slnx --configuration Release
+
+      - name: Publish self-contained win-x64
+        run: >
+          dotnet publish grimoire/grimoire.csproj --configuration Release --runtime win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None
+          --output publish/win-x64
+
+      - name: Package archive
+        id: package
+        shell: pwsh
+        run: |
+          $name = "grimoire-v${{ steps.version.outputs.version }}-win-x64.zip"
+          Copy-Item LICENSE, README.md publish/win-x64/
+          Compress-Archive -Path publish/win-x64/* -DestinationPath $name
+          $hash = (Get-FileHash $name -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path "$name.sha256" -Value "$hash  $name"
+          "archive=$name" >> $env:GITHUB_OUTPUT
+
+      - name: Commit version bump and tag
+        shell: pwsh
+        run: |
+          $v = '${{ steps.version.outputs.version }}'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Directory.Build.props
+          git commit -m "chore(release): v$v"
+          git tag -a "v$v" -m "grimoire v$v"
+          git push origin "HEAD:${{ github.ref_name }}" --follow-tags
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = '${{ steps.version.outputs.version }}'
+          $archive = '${{ steps.package.outputs.archive }}'
+          gh release create "v$v" $archive "$archive.sha256" --title "grimoire v$v" --generate-notes
